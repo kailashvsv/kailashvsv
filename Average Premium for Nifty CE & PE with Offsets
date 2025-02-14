@@ -1,0 +1,53 @@
+//@version=5
+indicator("Average Premium for Nifty CE & PE with Offsets", overlay=true)
+
+// User inputs for selecting the symbols of CE and PE
+ce_symbol = input.symbol("NIFTY23JAN24100CE", title="Select CE Symbol")
+pe_symbol = input.symbol("NIFTY23JAN24300PE", title="Select PE Symbol")
+
+// Combined settings for offsets (+50, +100, +150, -50, -100, -150)
+show_offset_50 = input.bool(true, title="Show +50 Line", inline="offset_50")
+offset_50_color = input.color(color.green, title="", inline="offset_50")
+show_offset_100 = input.bool(true, title="Show +100 Line", inline="offset_100")
+offset_100_color = input.color(color.orange, title="", inline="offset_100")
+show_offset_150 = input.bool(true, title="Show +150 Line", inline="offset_150")
+offset_150_color = input.color(color.red, title="", inline="offset_150")
+show_offset_neg_50 = input.bool(true, title="Show -50 Line", inline="offset_neg_50")
+offset_neg_50_color = input.color(color.purple, title="", inline="offset_neg_50")
+show_offset_neg_100 = input.bool(true, title="Show -100 Line", inline="offset_neg_100")
+offset_neg_100_color = input.color(color.yellow, title="", inline="offset_neg_100")
+show_offset_neg_150 = input.bool(true, title="Show -150 Line", inline="offset_neg_150")
+offset_neg_150_color = input.color(color.black, title="", inline="offset_neg_150")
+
+// Input for average premium line color
+avg_premium_color = input.color(color.blue, title="Average Premium Line Color")
+
+// Function to get the closing price for the last closed 5-minute candle
+get_last_close(symbol) =>
+    request.security(symbol, "5", close[1])  // Ensures data comes from the last completed candle
+
+// Fetch closing prices for the selected CE and PE symbols based on the last completed 5-minute candle
+ce_close = get_last_close(ce_symbol)
+pe_close = get_last_close(pe_symbol)
+
+// Calculate average premium based on CE and PE closing prices
+avg_premium = (ce_close + pe_close) / 2
+
+// Define offset levels
+avg_premium_plus_50 = avg_premium + 50
+avg_premium_plus_100 = avg_premium + 100
+avg_premium_plus_150 = avg_premium + 150
+avg_premium_minus_50 = avg_premium - 50
+avg_premium_minus_100 = avg_premium - 100
+avg_premium_minus_150 = avg_premium - 150
+
+// Plot the average premium line
+plot(avg_premium, title="Average Premium", color=avg_premium_color, linewidth=2)
+
+// Plot the offset lines with separate checkboxes and colors
+plot(show_offset_50 ? avg_premium_plus_50 : na, title="Average Premium +50", color=offset_50_color, linewidth=2)
+plot(show_offset_100 ? avg_premium_plus_100 : na, title="Average Premium +100", color=offset_100_color, linewidth=2)
+plot(show_offset_150 ? avg_premium_plus_150 : na, title="Average Premium +150", color=offset_150_color, linewidth=2)
+plot(show_offset_neg_50 ? avg_premium_minus_50 : na, title="Average Premium -50", color=offset_neg_50_color, linewidth=2)
+plot(show_offset_neg_100 ? avg_premium_minus_100 : na, title="Average Premium -100", color=offset_neg_100_color, linewidth=2)
+plot(show_offset_neg_150 ? avg_premium_minus_150 : na, title="Average Premium -150", color=offset_neg_150_color, linewidth=2)
